@@ -1,0 +1,125 @@
+syntax = "proto3";
+import "validate.proto";
+
+package grpc.bravo_studio.user_info_server;
+
+option go_package = "github.com/BravoLu/grpc_user_info";
+
+service UserService {
+    // register a user
+    rpc Register (RegisterReq) returns (RegisterRsp) {}
+    // login a user
+    rpc Login (LoginReq) returns (LoginRsp) {}
+    // query user
+    rpc QueryUser (QueryReq) returns (QueryRsp) {}
+    
+    rpc UpdateUser (UpdateUserReq) returns (UpdateUserRsp) {}
+
+    // checkExist 
+    rpc Exist (ExistReq) returns (ExistRsp) {}
+
+    rpc QueryUsers (QueryUsersReq) returns (QueryUsersRsp) {}
+}
+
+enum UserType{
+    // 主试类型
+    USER_TYPE_RESEARCHER = 0;
+    // 被试类型
+    USER_TYPE_PARTICIPANT = 1;
+}
+
+enum GenderType{
+    GENDER_TYPE_INVALID = 0;
+    // man
+    GENDER_TYPE_MAN = 1;
+    // woman
+    GENDER_TYPE_WOMAN = 2;
+}
+
+message UserInfo{
+    //user id
+    int64 uid = 1;
+    //email
+    string email = 2 [(validate.rules).string.email = true];
+    //phone number
+    string phone_number = 3 ;
+    //user name
+    string user_name = 4;
+    // gender
+    GenderType gender = 5;
+    // user type
+    UserType user_type = 6;
+
+    string extra = 7;
+}
+
+message RegisterReq{
+    //user info
+    UserInfo user_info = 1;
+    // password
+    string password = 2;
+}
+
+message RegisterRsp{
+    // common rsp
+    int32 code = 1;
+    string msg = 2;
+    int64 uid = 3;
+}
+
+message LoginReq{
+    //email
+    string email = 1;
+    //phone number
+    string phone_number = 2;
+    //password
+    string password = 3;
+}
+
+message LoginRsp{  
+    int32 code = 1;
+    string msg = 2;
+    // user info
+    int64 uid = 3;
+}
+
+message QueryReq {
+    int64 uid = 1;
+}
+
+message QueryRsp {
+    int32 code = 1;
+    string msg = 2;
+    UserInfo user_info = 3;
+}
+
+message UpdateUserReq {
+    int64 uid = 1;
+    string extra = 2;
+    string password = 3;
+}
+
+message UpdateUserRsp {
+    int32 code = 1;
+    string msg = 2;
+}
+
+message ExistReq {
+    string email = 1;
+}
+
+message ExistRsp {
+    int32 code = 1;
+    string msg = 2;
+    int64 uid = 3;
+}
+
+message QueryUsersReq {
+    repeated int64 uids = 1;
+}
+
+message QueryUsersRsp {
+    int32 code = 1;
+    string msg = 2;
+    repeated UserInfo users = 3;
+}

@@ -1,0 +1,193 @@
+syntax = "proto3";
+
+// import "validate.proto";
+
+package grpc.bravo_studio.exp_info_server;
+
+option go_package = "github.com/BravoLu/grpc_exp_info";
+
+service ExpInfoServer {
+    //  主试
+    rpc AddExp (AddExpReq) returns (AddExpRsp);              //  发布一个新实验
+    rpc UpdateExp (UpdateExpReq) returns (UpdateExpRsp);              //  更新一个实验
+    rpc QueryExp (QueryExpReq) returns (QueryExpRsp);                 //  查询实验
+    rpc QueryExps (QueryExpsReq) returns (QueryExpsRsp);     //  查询实验列表
+
+    //  被试记录
+    rpc AddSub (AddSubReq) returns (AddSubRsp);             // 参与一个实验
+    rpc UpdateSub (UpdateSubReq) returns (UpdateSubRsp);             // 更新被试记录
+    // rpc QuerySub (QuerySubReq) returns (QuerySubRsp);                //  查询被试记录
+    rpc QuerySubs (QuerySubsReq) returns (QuerySubsRsp);    // 查询被试记录列表
+    rpc QuerySub (QuerySubReq) returns (QuerySubRsp);
+}
+
+enum SubState {
+    SubInvalid = 0;    //  非法状态
+    Init = 1;       //  初始态
+    Approved = 2;   //  同意
+    Rejected = 3;   //  回绝
+}
+
+enum ExpState {
+    Invalid = 0;
+    Draft = 1;
+    Published = 2;
+    Finished = 3;
+    Closed = 4;
+    Deleted = 5;
+}
+
+message SubInfo {
+    string sid = 1;               // 被试记录id
+    int64 eid = 2;               // 实验id
+    int64  pid = 3;               // 被试用户id
+    string finished_at = 4;      // 实验耗时
+    SubState state = 5;           // 被试记录状态
+    string create_time = 6;
+    string update_time = 7;    
+}
+
+message ExpInfo {
+    int64 eid = 1;                 //  实验id
+    string title = 2;               //  实验标题
+    string desc = 3;                //  实验描述
+    int64  rid = 4;                 //  主试id
+    int32 ctime = 5;                //  实验时间/min
+    int32 pnum = 6;                 //  实验所需人数
+    ExpState state = 7;             //  状态
+    string create_time = 8;         //  发布时间
+    string update_time = 9;         //  更新时间
+    int32 cur_type = 10;            //  币种代码
+    int64 price = 11;               //  实验费用
+    string url = 12;                //  实验url
+    repeated string tags = 13;
+    string deadline = 14;
+}
+
+
+message AddExpReq {
+    string title = 1 ;
+    string desc = 2 ;
+    int64 rid = 3 ;
+    int32 ctime = 4 ;
+    int64 price = 6 ;
+    int32 cur_type = 7;
+    string url = 8;
+    int32 pnum = 9;
+    repeated string tags = 10;
+    string deadline = 11;
+}
+
+message AddExpRsp {
+    int32 code = 1;
+    string msg = 2;
+    int64 eid = 3;
+}
+
+message UpdateExpReq {
+    int64 rid = 1;
+    int64 eid = 2;   //  实验id
+    string title = 3;           //  实验标题
+    string desc = 4;     //  实验描述
+    int32 ctime = 5;  //  实验时间/min
+    int32 pnum = 6;  //  实验所需人数
+    ExpState state = 7;  //  状态  1-草稿箱 2-已发布 3-已完成 4-已删除
+    int64 price = 8;
+    string deadline = 9;
+    repeated string tags = 10;
+    string url = 11;
+}
+
+message UpdateExpRsp {
+    int32 code = 1;
+    string msg = 2;
+    int64 eid = 3;
+}
+
+message QueryExpReq {
+    int64 eid = 1; // 实验id
+    int64 rid = 2;
+}
+
+message QueryExpRsp {
+    int32 code = 1;
+    string msg = 2;
+    ExpInfo exp = 3;
+    repeated SubInfo subs = 4;
+    int32 subs_num = 5;
+    int32 finished_num = 6;
+}
+
+message QueryExpsReq {
+    int64 rid = 1; // 主试id
+    int32 page_index = 2;
+    int32 page_size = 3;
+    ExpState state = 4;
+    int32 order_type = 5;
+    int32 only_see_myself = 6;
+}
+
+message ExpStats {
+    int32 all_num = 1;
+    int32 ongoing_num = 2;
+    int32 finished_num = 3;
+    int32 closed_num = 4;
+}
+
+message QueryExpsRsp {
+    int32 code = 1;
+    string msg = 2;
+    int32 total_num = 3;
+    repeated ExpInfo exps = 4;
+    ExpStats stats = 5;
+}
+
+message AddSubReq {
+    int64 eid = 2;
+    int64 pid = 3;    // 被实id
+}
+
+message AddSubRsp {
+    int32 code = 1;
+    string msg = 2;
+    string sid = 3; // 被试记录id
+}
+
+message UpdateSubReq {
+    string sid = 1;  // 被试id
+    int64 uid = 3;             // 用户id
+    SubState state = 4;
+    int64 end_time = 5;
+}
+
+message UpdateSubRsp {
+    int32 code = 1;
+    string msg = 2;
+    string sid = 3;
+}
+
+message QuerySubsReq {
+    int64 pid = 1;
+    int32 page_index = 2;
+    int32 page_size = 3;
+    SubState state = 4;
+}
+
+message QuerySubsRsp {
+    int32 code = 1;
+    string msg = 2;
+    repeated SubInfo subs = 3;
+    int32 total_num = 4;
+}
+
+message QuerySubReq {
+    int64 eid = 1;
+    string sid = 2;
+    int64 pid = 3;
+}
+
+message QuerySubRsp {
+    int32 code = 1;
+    string msg = 2;
+    ExpInfo sub = 3;
+}
