@@ -97,6 +97,7 @@ message UpdateUserReq {
     int64 uid = 1;
     string extra = 2;
     string password = 3;
+    string phone_number = 4;
 }
 
 message UpdateUserRsp {
