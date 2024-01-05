@@ -914,6 +914,8 @@ func (m *UpdateUserReq) validate(all bool) error {
 
 	// no validation rules for Password
 
+	// no validation rules for PhoneNumber
+
 	if len(errors) > 0 {
 		return UpdateUserReqMultiError(errors)
 	}
